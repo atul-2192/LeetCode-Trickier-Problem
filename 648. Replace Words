@@ -1,0 +1,117 @@
+In English, we have a concept called root, which can be followed by some other word to form another longer word
+
+- let's call this word successor. 
+For example, when the root "an" is followed by the successor word "other",
+we can form a new word "another".
+
+Given a dictionary consisting of many roots and a sentence consisting of words separated by spaces,
+replace all the successors in the sentence with the root forming it. If a successor can be replaced by more than one root,
+replace it with the root that has the shortest length.
+
+Return the sentence after the replacement.
+
+ 
+
+Example 1:
+
+Input: dictionary = ["cat","bat","rat"], sentence = "the cattle was rattled by the battery"
+Output: "the cat was rat by the bat"
+Example 2:
+
+Input: dictionary = ["a","b","c"], sentence = "aadsfasf absbs bbab cadsfafs"
+Output: "a a b c"
+
+SOLUTION:
+
+struct Node {
+	Node *links[26];
+	bool flag = false;
+
+	bool containKey(char ch) {
+		return (links[ch - 'a'] != NULL);
+	}
+	void put(char ch, Node *node) {
+		links[ch - 'a'] = node;
+	}
+	
+	Node *get(char ch) {
+		return links[ch - 'a'];
+	}
+	
+	void setEnd() {
+		flag = true;
+	}
+	bool isEnd() {
+		return flag;
+	}
+};
+class Trie {
+private:
+	Node* root;
+public:
+	Trie() {
+	
+		root = new Node();
+	}
+
+	void insert(string word) {
+
+		Node *node = root;
+		for (int i = 0; i < word.size(); i++) {
+              if(word[i]==' ') continue;
+			if (!node->containKey(word[i])) {
+				node->put(word[i], new Node());
+			}
+			
+			node = node->get(word[i]);
+		}
+		node->setEnd();
+
+	}
+
+	string search(string word) {
+		Node *node = root;
+		for (int i = 0; i < word.size(); i++) {
+            if(word[i]==' ') continue;
+
+            if(node->isEnd())
+            {
+                return word.substr(0,i);
+            }
+			if (!node->containKey(word[i])) {
+      
+				return word;
+			}
+
+			node = node->get(word[i]);
+		}
+		return word;
+	}
+
+};
+class Solution {
+public:
+    string replaceWords(vector<string>& dictionary, string sentence) {
+        Trie trie;
+       for(auto x:dictionary)
+       {
+           trie.insert(x);
+       }
+       string ans="";
+       for(int i=0;i<sentence.length();i++)
+       {   string word="";
+           while(i<sentence.length()&&sentence[i]!=' ')
+           {   
+               word.push_back(sentence[i]);
+               i++;
+           }
+        
+          word=trie.search(word);
+       
+          ans+=word;
+          ans.push_back(' ');
+       }
+       ans.pop_back();
+       return ans;
+    }
+};
